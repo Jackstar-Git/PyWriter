@@ -71,19 +71,21 @@ def set_time_and_error():
 
     speed = None
     error = None
+    num_of_units = None
     try:
         speed = float(input("How many characters per minute do you want to type?: ").replace(",", "."))
         error = float(
             input("How many mistakes do you want to make (in % - type without the % sign): ").replace(",", "."))
-        speed = 1 / (speed/60)
+        speed = 1 / ((speed*1.1) / 60)
+        num_of_units = int(input("How many units ('Lektionen') do you want to write?: "))
     except ValueError:
         clear()
         print("-" * 50)
-        print(Fore.RED + "You have to input a valid number for both values!")
+        print(Fore.RED + "You have to input a valid number for all three values!")
         print("-" * 50)
         set_time_and_error()
 
-    return speed, error
+    return speed, error, num_of_units
 
 
 def main(login_data, typing_data):
@@ -92,6 +94,7 @@ def main(login_data, typing_data):
 
     speed = typing_data[0]
     error = round(typing_data[1], 1)
+    num_of_units = abs(typing_data[2])
 
     browser = login_data[2]
 
@@ -114,48 +117,50 @@ def main(login_data, typing_data):
     driver.get('https://at4.typewriter.at/index.php')
     driver.maximize_window()
 
+   
     time.sleep(2)
     driver.find_element(By.ID, "LoginForm_username").send_keys(username)
     driver.find_element(By.ID, "LoginForm_pw").send_keys(password)
     driver.find_element(By.NAME, 'yt0').click()
+    
+    for _ in range(num_of_units):
+        time.sleep(2)
+        driver.get("https://at4.typewriter.at/index.php?r=typewriter/runLevel")
+        time.sleep(1)
 
-    time.sleep(2)
-    driver.get("https://at4.typewriter.at/index.php?r=typewriter/runLevel")
-    time.sleep(1)
+        keyboard.tap(Key.space)
+        time.sleep(1)
 
-    keyboard.tap(Key.space)
-    time.sleep(1)
-
-    text_field = driver.find_element(By.ID, "text_todo")
-    text = text_field.text
-
-    current = text[0]
-
-    current_length = len(list(text))
-
-
-    while current_length > 0:
-        window = gw.getActiveWindow()
-        window_title: str  = window.title
-        if not window_title.startswith("Typewriter") or window is None:
-            time.sleep(3)
-            continue
-
-        mistake_index = random.randint(1, 1000)
-        if mistake_index <= (error*10):
-            keyboard.type('ẞ')
-            continue
-        keyboard.tap(current)
         text_field = driver.find_element(By.ID, "text_todo")
         text = text_field.text
 
-        if current_length <= 1:
-            break
         current = text[0]
 
         current_length = len(list(text))
 
-        time.sleep(speed)
+
+        while current_length > 0:
+            window = gw.getActiveWindow()
+            window_title: str = window.title
+            if not window_title.startswith("Typewriter") or window is None:
+                time.sleep(3)
+                continue
+
+            mistake_index = random.randint(1, 1000)
+            if mistake_index <= (error*10):
+                keyboard.type('ẞ')
+                continue
+            keyboard.tap(current)
+            text_field = driver.find_element(By.ID, "text_todo")
+            text = text_field.text
+
+            if current_length <= 1:
+                break
+            current = text[0]
+
+            current_length = len(list(text))
+
+            time.sleep(speed)
 
 
 if __name__ == '__main__':
@@ -163,22 +168,3 @@ if __name__ == '__main__':
     typing_data = set_time_and_error()
     main(login_data, typing_data)
 
-
-#
-#        for x in range(int(longt)):
-#            text1c = driver.find_element_by_id('text_todo')
-#            text1 = text1c.text
-#            text1l = list(text1)
-#            keyboard.press(text1l[0])
-#            keyboard.release(text1l[0])
-#            time.sleep(float(zeit1))
-#
-#        time.sleep(3)
-#        print("Level complete")
-#        driver.back()
-#
-#        clear()
-#
-#
-# if __name__ == "__main__":
-#    main()
