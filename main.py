@@ -131,7 +131,7 @@ def main(login_data, typing_data):
         keyboard.tap(Key.space)
         time.sleep(1)
 
-        text_field = driver.find_element(By.ID, "text_todo")
+        text_field = driver.find_element(By.ID, "text_todo_1")
         text = text_field.text
 
         current = text[0]
@@ -151,7 +151,7 @@ def main(login_data, typing_data):
                 keyboard.type('ẞ')
                 continue
             keyboard.tap(current)
-            text_field = driver.find_element(By.ID, "text_todo")
+            text_field = driver.find_element(By.ID, "text_todo_1")
             text = text_field.text
 
             if current_length <= 1:
